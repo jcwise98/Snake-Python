@@ -28,3 +28,5 @@ def square_num(num):
 
 result = square_num(userNum)
 print("\nYour given number squared is:", result)
+
+input("Press enter to exit...")
