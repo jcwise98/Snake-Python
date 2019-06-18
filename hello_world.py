@@ -1,6 +1,3 @@
-# Test class that has a property and a simple constructor.
-# the constructor takes in an int and sets the num field equal to
-# the x property plus the given value. Sets the phrase field to "Hello World"
 
 
 class HelloWorld:
@@ -18,9 +15,13 @@ def square_num(num):
     return val
 
 
+def check_exit_false(var):
+    return (var != 'Q') and (var != 'q')
+
+
 userInput = input("What number do you wish to give?\n")
 
-while True:
+while check_exit_false(userInput):
     while True:
         try:
             userNum = int(userInput)
@@ -36,11 +37,3 @@ while True:
             userInput = input("Please enter a number\n")
 
     userInput = input("Enter a number to continue\nPress Q to exit...\n")
-    try:
-        userNum = int(userInput)
-    except ValueError:
-        if (userInput == 'Q') or (userInput == 'q'):
-            print("Goodbye...")
-            break
-        else:
-            userInput = input("Please enter a number\n")
