@@ -19,9 +19,10 @@ def check_exit_false(var):
     return (var != 'Q') and (var != 'q')
 
 
+flag = True
 userInput = input("What number do you wish to give?\n")
 
-while check_exit_false(userInput):
+while flag:
     while True:
         try:
             userNum = int(userInput)
@@ -37,3 +38,6 @@ while check_exit_false(userInput):
             userInput = input("Please enter a number\n")
 
     userInput = input("Enter a number to continue\nPress Q to exit...\n")
+    flag = check_exit_false(userInput)
+
+print("Goodbye...")
