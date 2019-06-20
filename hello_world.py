@@ -1,18 +1,11 @@
+import square
+square = square.square_num
 
 
 class HelloWorld:
     def __init__(self, var):
         self.num = var
         self.phrase = "Hello World!"
-
-
-def square_num(num):
-    if num < 0:
-        num = num*-1
-    val = 0
-    for i in range(num):
-        val = val + num
-    return val
 
 
 def check_exit_false(var):
@@ -31,7 +24,7 @@ while flag:
             for i in range(hw.num):
                 print(hw.phrase, i+1)
 
-            result = square_num(userNum)
+            result = square(userNum)
             print("\nYour given number squared is:", result)
             break
         except ValueError:
