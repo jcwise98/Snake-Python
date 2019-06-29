@@ -1,4 +1,5 @@
 import square
+
 square = square.square_num
 
 
@@ -34,3 +35,4 @@ while flag:
     flag = check_exit_false(userInput)
 
 print("Goodbye...")
+
