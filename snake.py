@@ -1,6 +1,6 @@
 import pygame
-import random
 import constant
+import snakelist
 
 pygame.init()
 gameDisplay = pygame.display.set_mode((constant.SCREEN_WIDTH, constant.SCREEN_HEIGHT))
@@ -19,8 +19,9 @@ y_vel = 10
 x_fac = 0
 y_fac = 0
 
-x_pos = 10
-y_pos = 300
+snake = snakelist.SLinkedList()
+snake.head = snakelist.SNode()
+# snake.head.next = snakelist.SNode(10, 300)
 
 right = pygame.K_RIGHT
 left = pygame.K_LEFT
@@ -34,18 +35,25 @@ def wall_collision():
     global x_fac
     global y_fac
     global alive
-    if x_pos >= (constant.SCREEN_WIDTH-constant.SNAKE_SIZE):
+    if snake.head.x >= (constant.SCREEN_WIDTH-constant.SNAKE_SIZE):
         alive = False
         x_fac = 0
-    if x_pos <= 0:
+    if snake.head.x <= 0:
         alive = False
         x_fac = 0
-    if y_pos >= (constant.SCREEN_HEIGHT-constant.SNAKE_SIZE):
+    if snake.head.y >= (constant.SCREEN_HEIGHT-constant.SNAKE_SIZE):
         alive = False
         y_fac = 0
-    if y_pos <= 0:
+    if snake.head.y <= 0:
         alive = False
         y_fac = 0
+
+
+def add_snake():
+    curr = snake.head
+    while curr.next is not None:
+        curr = curr.next
+    curr.next = snakelist.SNode(curr.xprev, curr.yprev)
 
 
 RUNNING, PAUSE = 0, 1
@@ -69,11 +77,14 @@ while True:
             if event.key == up:
                 x_fac = 0
                 y_fac = -1
+
             if event.key == down:
                 x_fac = 0
                 y_fac = 1
             if event.key == pygame.K_p:
                 state = PAUSE
+            if event.key == pygame.K_a:
+                add_snake()
             if event.key == pygame.K_SPACE:
                 state = RUNNING
 
@@ -81,11 +92,25 @@ while True:
         if state == RUNNING:
             wall_collision()
 
-            x_pos = x_pos + (x_vel*x_fac)
-            y_pos = y_pos + (y_vel*y_fac)
+            snake.head.xprev = snake.head.x
+            snake.head.yprev = snake.head.y
+            snake.head.x += (x_vel*x_fac)
+            snake.head.y += (y_vel*y_fac)
 
             gameDisplay.fill(background_colour)
-            pygame.draw.rect(gameDisplay, snake_color, (x_pos, y_pos, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 0)
+            current = snake.head
+            counter = 0
+            while current is not None:
+                pygame.draw.rect(gameDisplay, snake_color,
+                                 (current.x, current.y, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 0)
+                print(counter,": [",current.x,", ",current.y,"]")
+                if current.next is not None:
+                    current.next.xprev = current.x
+                    current.next.yprev = current.y
+                    current.next.x = current.xprev
+                    current.next.y = current.yprev
+                current = current.next
+                counter+=1
 
         elif state == PAUSE:
             gameDisplay.blit(pause_text, (100, 100))
@@ -96,4 +121,4 @@ while True:
     pygame.display.update()
     clock.tick(constant.GAME_SPEED)
 
-    #pygame.event.pump()
+    # pygame.event.pump()
