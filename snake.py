@@ -4,43 +4,12 @@ import snakelist
 import objects
 import random
 
+alive = True
 
 def gen_random():
     rand = random.randint(15, 585)
     rand = (rand - (rand % 15))
     return rand
-
-
-pygame.init()
-gameDisplay = pygame.display.set_mode((constant.SCREEN_WIDTH, constant.SCREEN_HEIGHT))
-
-background_colour = (89, 89, 89)
-snake_color = (255, 125, 64)
-food_color = (255, 0, 0)
-gameDisplay.fill(background_colour)
-
-pygame.display.set_caption('Snake')
-
-clock = pygame.time.Clock()
-
-x_vel = 15
-y_vel = 15
-
-x_fac = 0
-y_fac = 0
-
-snake = snakelist.SLinkedList()
-snake.head = snakelist.SNode()
-snake_length = 1
-
-food = objects.FoodObj(gen_random() + 10, gen_random())
-
-right = pygame.K_RIGHT
-left = pygame.K_LEFT
-up = pygame.K_UP
-down = pygame.K_DOWN
-
-alive = True
 
 
 def wall_collision():
@@ -68,12 +37,50 @@ def food_collision():
         food.y = gen_random()
 
 
+def self_collision():
+    global alive
+    curr = snake.head.next
+    while curr is not None:
+        if (snake.head.x == curr.x) and (snake.head.y == curr.y):
+            alive = False
+        curr = curr.next
+
+
 def add_snake():
     curr = snake.head
     while curr.next is not None:
         curr = curr.next
     curr.next = snakelist.SNode(curr.xprev, curr.yprev)
+    snake.length += 1
 
+
+pygame.init()
+gameDisplay = pygame.display.set_mode((constant.SCREEN_WIDTH, constant.SCREEN_HEIGHT))
+
+background_colour = (89, 89, 89)
+snake_color = (255, 125, 64)
+food_color = (255, 0, 0)
+gameDisplay.fill(background_colour)
+
+pygame.display.set_caption('Snake')
+
+clock = pygame.time.Clock()
+
+x_vel = 15
+y_vel = 15
+
+x_fac = 0
+y_fac = 0
+
+snake = snakelist.SLinkedList()
+snake.head = snakelist.SNode()
+
+food = objects.FoodObj(gen_random() + 10, gen_random())
+
+right = pygame.K_RIGHT
+left = pygame.K_LEFT
+up = pygame.K_UP
+down = pygame.K_DOWN
 
 RUNNING, PAUSE = 0, 1
 state = RUNNING
@@ -88,25 +95,25 @@ while True:
             exit()
         if event.type == pygame.KEYDOWN:
             if event.key == right:
-                if (snake_length > 1) and (x_fac == -1) and (y_fac == 0):
+                if (snake.length > 1) and (x_fac == -1) and (y_fac == 0):
                     pass
                 else:
                     x_fac = 1
                     y_fac = 0
             if event.key == left:
-                if (snake_length > 1) and (x_fac == 1) and (y_fac == 0):
+                if (snake.length > 1) and (x_fac == 1) and (y_fac == 0):
                     pass
                 else:
                     x_fac = -1
                     y_fac = 0
             if event.key == up:
-                if (snake_length > 1) and (x_fac == 0) and (y_fac == 1):
+                if (snake.length > 1) and (x_fac == 0) and (y_fac == 1):
                     pass
                 else:
                     x_fac = 0
                     y_fac = -1
             if event.key == down:
-                if (snake_length > 1) and (x_fac == 0) and (y_fac == -1):
+                if (snake.length > 1) and (x_fac == 0) and (y_fac == -1):
                     pass
                 else:
                     x_fac = 0
@@ -115,7 +122,6 @@ while True:
                 state = PAUSE
             if event.key == pygame.K_a:
                 add_snake()
-                snake_length += 1
             if event.key == pygame.K_SPACE:
                 state = RUNNING
 
@@ -123,11 +129,13 @@ while True:
         if state == RUNNING:
             wall_collision()
             food_collision()
-            # print(snake_length)
-            snake.head.xprev = snake.head.x
-            snake.head.yprev = snake.head.y
-            snake.head.x += (x_vel * x_fac)
-            snake.head.y += (y_vel * y_fac)
+            self_collision()
+
+            if alive:
+                snake.head.xprev = snake.head.x
+                snake.head.yprev = snake.head.y
+                snake.head.x += (x_vel * x_fac)
+                snake.head.y += (y_vel * y_fac)
 
             gameDisplay.fill(background_colour)
             current = snake.head

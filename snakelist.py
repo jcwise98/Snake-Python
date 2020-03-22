@@ -9,3 +9,4 @@ class SNode:
 class SLinkedList:
     def __init__(self):
         self.head = None
+        self.length = 1
