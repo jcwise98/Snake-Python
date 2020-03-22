@@ -4,7 +4,6 @@ import snakelist
 import objects
 import random
 
-alive = True
 
 def gen_random():
     rand = random.randint(15, 585)
@@ -33,7 +32,7 @@ def wall_collision():
 def food_collision():
     if (snake.head.x == food.x) and (snake.head.y == food.y):
         add_snake()
-        food.x = gen_random() + 10
+        food.x = gen_random()
         food.y = gen_random()
 
 
@@ -52,6 +51,7 @@ def add_snake():
         curr = curr.next
     curr.next = snakelist.SNode(curr.xprev, curr.yprev)
     snake.length += 1
+    constant.GAME_SPEED += 1
 
 
 pygame.init()
@@ -59,109 +59,121 @@ gameDisplay = pygame.display.set_mode((constant.SCREEN_WIDTH, constant.SCREEN_HE
 
 background_colour = (89, 89, 89)
 snake_color = (255, 125, 64)
-food_color = (255, 0, 0)
+food_color = (255, 250, 205)
 gameDisplay.fill(background_colour)
 
 pygame.display.set_caption('Snake')
-
-clock = pygame.time.Clock()
-
-x_vel = 15
-y_vel = 15
-
-x_fac = 0
-y_fac = 0
-
-snake = snakelist.SLinkedList()
-snake.head = snakelist.SNode()
-
-food = objects.FoodObj(gen_random() + 10, gen_random())
-
-right = pygame.K_RIGHT
-left = pygame.K_LEFT
-up = pygame.K_UP
-down = pygame.K_DOWN
-
-RUNNING, PAUSE = 0, 1
-state = RUNNING
-pause_text = pygame.font.SysFont('Consolas', 32).render('Paused - Press SPACE to resume', True,
-                                                        pygame.color.Color('White'))
-dead_text = pygame.font.SysFont('Consolas', 32).render('You died!', True, pygame.color.Color('White'))
-
 while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == right:
-                if (snake.length > 1) and (x_fac == -1) and (y_fac == 0):
-                    pass
-                else:
-                    x_fac = 1
-                    y_fac = 0
-            if event.key == left:
-                if (snake.length > 1) and (x_fac == 1) and (y_fac == 0):
-                    pass
-                else:
-                    x_fac = -1
-                    y_fac = 0
-            if event.key == up:
-                if (snake.length > 1) and (x_fac == 0) and (y_fac == 1):
-                    pass
-                else:
-                    x_fac = 0
-                    y_fac = -1
-            if event.key == down:
-                if (snake.length > 1) and (x_fac == 0) and (y_fac == -1):
-                    pass
-                else:
-                    x_fac = 0
-                    y_fac = 1
-            if event.key == pygame.K_p:
-                state = PAUSE
-            if event.key == pygame.K_a:
-                add_snake()
-            if event.key == pygame.K_SPACE:
-                state = RUNNING
+    alive = True
+    constant.GAME_SPEED = 10
+    clock = pygame.time.Clock()
 
-    if alive:
-        if state == RUNNING:
-            wall_collision()
-            food_collision()
-            self_collision()
+    x_vel = 15
+    y_vel = 15
 
-            if alive:
-                snake.head.xprev = snake.head.x
-                snake.head.yprev = snake.head.y
-                snake.head.x += (x_vel * x_fac)
-                snake.head.y += (y_vel * y_fac)
+    x_fac = 0
+    y_fac = 0
 
-            gameDisplay.fill(background_colour)
-            current = snake.head
-            while current is not None:
-                pygame.draw.rect(gameDisplay, snake_color,
-                                 (current.x, current.y, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 0)
+    snake = snakelist.SLinkedList()
+    snake.head = snakelist.SNode(gen_random())
+
+    food = objects.FoodObj(gen_random(), gen_random())
+
+    right = pygame.K_RIGHT
+    left = pygame.K_LEFT
+    up = pygame.K_UP
+    down = pygame.K_DOWN
+
+    RUNNING, PAUSE = 0, 1
+    state = RUNNING
+    pause_text = pygame.font.SysFont('Consolas', 32).render('Paused - Press SPACE to resume', True,
+                                                            pygame.color.Color('White'))
+    dead_text = pygame.font.SysFont('Consolas', 32).render('You died! Press R to restart', True,
+                                                           pygame.color.Color('White'))
+
+    score_text = pygame.font.SysFont('Consolas', 32).render('Score: 100', True,
+                                                            pygame.color.Color('White'))
+    restart = True
+    while restart:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == right:
+                    if (snake.length > 1) and (x_fac == -1) and (y_fac == 0):
+                        pass
+                    else:
+                        x_fac = 1
+                        y_fac = 0
+                if event.key == left:
+                    if (snake.length > 1) and (x_fac == 1) and (y_fac == 0):
+                        pass
+                    else:
+                        x_fac = -1
+                        y_fac = 0
+                if event.key == up:
+                    if (snake.length > 1) and (x_fac == 0) and (y_fac == 1):
+                        pass
+                    else:
+                        x_fac = 0
+                        y_fac = -1
+                if event.key == down:
+                    if (snake.length > 1) and (x_fac == 0) and (y_fac == -1):
+                        pass
+                    else:
+                        x_fac = 0
+                        y_fac = 1
+                if event.key == pygame.K_p:
+                    state = PAUSE
+                if event.key == pygame.K_a:
+                    snake.head.x = gen_random()
+                    snake.head.y = gen_random()
+                if event.key == pygame.K_SPACE:
+                    state = RUNNING
+                if alive is False:
+                    if event.key == pygame.K_r:
+                        restart = False
+
+        if alive:
+            if state == RUNNING:
+                wall_collision()
+                food_collision()
+                self_collision()
+
+                if alive:
+                    snake.head.xprev = snake.head.x
+                    snake.head.yprev = snake.head.y
+                    snake.head.x += (x_vel * x_fac)
+                    snake.head.y += (y_vel * y_fac)
+
+                gameDisplay.fill(background_colour)
+                # gameDisplay.blit(score_text, (snake.head.x, snake.head.y-50))
+                current = snake.head
+                while current is not None:
+                    pygame.draw.rect(gameDisplay, snake_color,
+                                     (current.x, current.y, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 0)
+                    pygame.draw.rect(gameDisplay, background_colour,
+                                     (current.x, current.y, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 1)
+                    if current.next is not None:
+                        current.next.xprev = current.next.x
+                        current.next.yprev = current.next.y
+                        current.next.x = current.xprev
+                        current.next.y = current.yprev
+                    current = current.next
+
+                pygame.draw.rect(gameDisplay, food_color,
+                                 (food.x, food.y, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 0)
                 pygame.draw.rect(gameDisplay, background_colour,
-                                 (current.x, current.y, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 1)
-                if current.next is not None:
-                    current.next.xprev = current.next.x
-                    current.next.yprev = current.next.y
-                    current.next.x = current.xprev
-                    current.next.y = current.yprev
-                current = current.next
+                                 (food.x, food.y, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 1)
+            elif state == PAUSE:
+                gameDisplay.blit(pause_text, (100, 100))
 
-            pygame.draw.rect(gameDisplay, food_color,
-                             (food.x, food.y, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 0)
-            pygame.draw.rect(gameDisplay, background_colour,
-                             (food.x, food.y, constant.SNAKE_SIZE, constant.SNAKE_SIZE), 1)
-        elif state == PAUSE:
-            gameDisplay.blit(pause_text, (100, 100))
+        else:
+            gameDisplay.blit(dead_text, (100, 100))
 
-    else:
-        gameDisplay.blit(dead_text, (100, 100))
+        pygame.display.update()
+        clock.tick(constant.GAME_SPEED)
 
-    pygame.display.update()
-    clock.tick(constant.GAME_SPEED)
-
-    # pygame.event.pump()
+        # pygame.event.pump()
+    restart = True
